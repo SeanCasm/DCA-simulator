@@ -7,3 +7,6 @@ Necesaria una extensión en el navegador como [Moesif Origin & CORS Changer](htt
 # Imagen docker
 Disponible en [seancasm/dca-simulator](https://hub.docker.com/r/seancasm/dca-simulator)
 
+# Web
+Link a la web alojada por github pages [aqui](https://seancasm.github.io/DCA-simulator/)
+
