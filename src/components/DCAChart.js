@@ -98,7 +98,7 @@ export const DCAChart = ({ data = [], settings }) => {
     const amountInvested = settings.amount;
     const investment = data.map((d, index) => ({
       x: index,
-      y: monthInvestment(amountInvested, index + 1),
+      y: monthInvestment(amountInvested, index),
     }));
     setInvestmentData(investment);
   };
