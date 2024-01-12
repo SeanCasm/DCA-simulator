@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/DCA-simulator/static/css/main.12493a7a.css",
-    "main.js": "/DCA-simulator/static/js/main.d2dd12da.js",
+    "main.js": "/DCA-simulator/static/js/main.31af386c.js",
     "static/js/787.90ba9c0d.chunk.js": "/DCA-simulator/static/js/787.90ba9c0d.chunk.js",
     "index.html": "/DCA-simulator/index.html",
     "main.12493a7a.css.map": "/DCA-simulator/static/css/main.12493a7a.css.map",
-    "main.d2dd12da.js.map": "/DCA-simulator/static/js/main.d2dd12da.js.map",
+    "main.31af386c.js.map": "/DCA-simulator/static/js/main.31af386c.js.map",
     "787.90ba9c0d.chunk.js.map": "/DCA-simulator/static/js/787.90ba9c0d.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.12493a7a.css",
-    "static/js/main.d2dd12da.js"
+    "static/js/main.31af386c.js"
   ]
 }
