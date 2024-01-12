@@ -6,7 +6,6 @@ import { DCATable } from "./components/DCATable";
 import { Settings } from "./components/Settings";
 import { useTrades } from "./hooks/useTrades";
 import { calculateEarnings } from "./utils/investmentUtils";
-import { SummaryContainer } from "./components/summary/SummaryContainer";
 
 export const App = () => {
   const { getTrades, trades } = useTrades();
@@ -15,17 +14,15 @@ export const App = () => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    if (settings) {
+    if (status === "loading") {
       const { selectedCoin, selectedCurrency, startDate, endDate } = settings;
-      if (selectedCoin && selectedCurrency) {
-        const marketId = `${selectedCoin}-${selectedCurrency}`;
-        getTrades(marketId, startDate, endDate);
-      }
+      const marketId = `${selectedCoin}-${selectedCurrency}`;
+      getTrades(marketId, startDate, endDate);
     }
-  }, [settings]);
+  }, [status]);
 
   useEffect(() => {
-    if (settings)
+    if (status === "loading")
       if (trades.length === settings.months) {
         const { amount, months } = settings;
         const info = calculateEarnings(trades, amount, months);
