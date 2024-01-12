@@ -4,6 +4,8 @@ Simulador de estrategia de inversión DCA (Dolar Cost Averaging) en donde se inv
 # Funcionamiento
 Necesaria una extensión en el navegador como [Moesif Origin & CORS Changer](https://www.example.com](https://chromewebstore.google.com/detail/digfbfaphojjndkpccljibejjbppifbc)https://chromewebstore.google.com/detail/digfbfaphojjndkpccljibejjbppifbc) para enviar peticiones cross-domain y evitar el error del CORS.
 
+Una vez en la web, seleccionar fecha de inicio y cierre para visualizar la información gráfica de la inversión.
+
 # Imagen docker
 Disponible en [seancasm/dca-simulator](https://hub.docker.com/r/seancasm/dca-simulator)
 
