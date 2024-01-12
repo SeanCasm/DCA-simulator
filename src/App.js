@@ -22,13 +22,14 @@ export const App = () => {
   }, [status]);
 
   useEffect(() => {
-    if (status === "loading")
+    if (status === "loading") {
       if (trades.length === settings.months) {
         const { amount, months } = settings;
         const info = calculateEarnings(trades, amount, months);
         setData(info);
         setStatus("loaded");
       }
+    }
   }, [trades]);
 
   return (

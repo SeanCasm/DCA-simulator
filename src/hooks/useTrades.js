@@ -29,7 +29,6 @@ export const useTrades = () => {
 
     startDate.setUTCHours(12, 0, 0, 0);
     months = totalMonths(startDate, endDate);
-    console.log(months);
     for (let i = 0; i <= months; i++) {
       /**
        * Establece la fecha al primer día del mes actual "i",

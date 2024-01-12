@@ -31,9 +31,8 @@ export const Settings = ({ setSettings, setStatus }) => {
    * @returns fecha final minima.
    */
   const minEndDate = (start = new Date()) => {
-    return new Date(start.getFullYear(), start.getMonth() + 12);
+    return new Date(start?.getFullYear(), start?.getMonth() + 12);
   };
-
   /**
    * Actualiza la fecha inicial para establecer el rango de tiempo.
    * @param {*} date
@@ -41,9 +40,10 @@ export const Settings = ({ setSettings, setStatus }) => {
   const handleStartDateChange = (date) => {
     setStartDate(date);
     const newEndDate = minEndDate(date);
-    setEndDate(newEndDate);
     if (date === null) {
       setEndDate(null);
+    } else {
+      updateEndDateFromStart(date, newEndDate);
     }
   };
   /**
@@ -69,6 +69,10 @@ export const Settings = ({ setSettings, setStatus }) => {
     setEndDate(date);
     setMonths(totalMonths(startDate, date));
   };
+  const updateEndDateFromStart = (startDate, endDate) => {
+    setEndDate(endDate);
+    setMonths(totalMonths(startDate, endDate));
+  };
   /**
    * Actualiza el monto a invertir mediante el input.
    * @param {*} event
@@ -82,9 +86,9 @@ export const Settings = ({ setSettings, setStatus }) => {
   };
 
   useEffect(() => {
-    //Hacer peticion a una API para obtener listado de coins
+    //Listado de monedas
     setCoins(["BTC"]);
-    //Hacer peticion a una API para obtener las divisas
+    //Listado de las divisas
     setCurrencies(["CLP"]);
 
     //Selecciona Bitcoin y la divisa CLP por defecto para efectos de esta tarea
