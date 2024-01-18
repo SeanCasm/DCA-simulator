@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
 import { formatDate } from "../utils/date";
 import { monthInvestment } from "../utils/investmentUtils";
 import { SummaryContainer } from "./summary/SummaryContainer";
+import { useTrades } from "../hooks/useTrades";
 /**
  * Componente que renderiza una tabla con los datos de la estrategia.
  */
-export const DCATable = ({ data = [], settings = {} }) => {
+export const DCATable = () => {
+  const { portfolio, trade } = useTrades();
   const [finalPortfolio, setFinalPortfolio] = useState(0);
   const [finalInvestment, setFinalInvestment] = useState(0);
 
   useEffect(() => {
-    if (data.length > 0) {
-      setFinalInvestment(monthInvestment(settings.amount, settings.months));
-      setFinalPortfolio(data[data.length - 1].portfolioValue);
+    if (portfolio.values.length > 0) {
+      const { amount, months } = trade;
+      setFinalInvestment(monthInvestment(amount, months));
+      const lastIndex = portfolio.values.length - 1;
+      setFinalPortfolio(portfolio.values[lastIndex].portfolioValue);
     }
-  }, [data]);
+  }, [portfolio.values]);
   return (
     <main data-testid="dca-table ">
       <SummaryContainer
@@ -31,7 +34,7 @@ export const DCATable = ({ data = [], settings = {} }) => {
             <tr className="tr-bg-dark">
               <th>Fecha</th>
               <th>
-                Precio {settings.selectedCoin} ({settings.selectedCurrency})
+                Precio {trade.selectedCoin} ({trade.selectedCurrency})
               </th>
               <th>Invertido</th>
               <th>Valor portafolio</th>
@@ -40,17 +43,25 @@ export const DCATable = ({ data = [], settings = {} }) => {
             </tr>
           </thead>
           <tbody>
-            {data.map((d, index) => (
+            {portfolio.values.map((d, index) => (
               <tr key={index} className={index % 2 !== 0 ? "tr-bg-dark" : ""}>
                 <td>{formatDate(d.date)}</td>
-                <td>${data[index].coinPrice}</td>
-                <td>${monthInvestment(settings.amount, index)}</td>
-                <td>${data[index].portfolioValue}</td>
-                <td className={data[index].gain >= 0 ? "gain" : "lose"}>
-                  ${data[index].gain}
+                <td>${portfolio.values[index].coinPrice}</td>
+                <td>${monthInvestment(trade.amount, index)}</td>
+                <td>${portfolio.values[index].portfolioValue}</td>
+                <td
+                  className={
+                    portfolio.values[index].gain >= 0 ? "gain" : "lose"
+                  }
+                >
+                  ${portfolio.values[index].gain}
                 </td>
-                <td className={data[index].gain >= 0 ? "gain" : "lose"}>
-                  {data[index].percentage.toFixed(2)}%
+                <td
+                  className={
+                    portfolio.values[index].gain >= 0 ? "gain" : "lose"
+                  }
+                >
+                  {portfolio.values[index].percentage.toFixed(2)}%
                 </td>
               </tr>
             ))}
@@ -59,15 +70,4 @@ export const DCATable = ({ data = [], settings = {} }) => {
       </div>
     </main>
   );
-};
-DCATable.propTypes = {
-  data: PropTypes.array,
-  settings: PropTypes.shape({
-    amount: PropTypes.number,
-    selectedCoin: PropTypes.string,
-    startDate: PropTypes.instanceOf(Date),
-    endDate: PropTypes.instanceOf(Date),
-    selectedCurrency: PropTypes.string,
-    months: PropTypes.number,
-  }),
 };

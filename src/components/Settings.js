@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
 import DatePicker from "react-datepicker";
 import { totalMonths } from "../utils/date";
 import "react-datepicker/dist/react-datepicker.css";
+import { useTrades } from "../hooks/useTrades";
 
 /**
  * Componente que muestra el panel para configurar la solicitud de la estrategia DCA.
  */
-export const Settings = ({ setSettings, setStatus }) => {
-  const [coins, setCoins] = useState(["BTC"]);
+export const Settings = () => {
+  const { getMarkets, currencies, coins, getTrades } = useTrades();
   const [selectedCoin, setSelectedCoin] = useState("");
   const [amount, setAmount] = useState(20000);
   const [months, setMonths] = useState(12);
-  const [currencies, setCurrencies] = useState(["CLP"]);
   const [selectedCurrency, setSelectedCurrency] = useState("");
 
   const [endDate, setEndDate] = useState(null);
@@ -51,15 +50,15 @@ export const Settings = ({ setSettings, setStatus }) => {
    */
   const startSimulation = (event) => {
     event.preventDefault();
-    setSettings({
+    const settings = {
       amount,
       selectedCoin,
       startDate,
       endDate,
       selectedCurrency,
       months,
-    });
-    setStatus("loading");
+    };
+    getTrades(settings);
   };
   /**
    * Actualiza la fecha final para establecer el rango de tiempo.
@@ -86,15 +85,16 @@ export const Settings = ({ setSettings, setStatus }) => {
   };
 
   useEffect(() => {
-    //Listado de monedas
-    setCoins(["BTC"]);
-    //Listado de las divisas
-    setCurrencies(["CLP"]);
-
-    //Selecciona Bitcoin y la divisa CLP por defecto para efectos de esta tarea
-    setSelectedCoin(coins[0]);
-    setSelectedCurrency(currencies[0]);
+    getMarkets();
   }, []);
+
+  useEffect(() => {
+    if (coins.length > 0) setSelectedCoin(coins[0]);
+  }, [coins]);
+
+  useEffect(() => {
+    if (currencies.length > 0) setSelectedCurrency(currencies[0]);
+  }, [currencies]);
 
   return (
     <form
@@ -180,8 +180,4 @@ export const Settings = ({ setSettings, setStatus }) => {
       </section>
     </form>
   );
-};
-Settings.propTypes = {
-  setSettings: PropTypes.func,
-  setStatus: PropTypes.func,
 };

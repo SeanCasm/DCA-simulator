@@ -14,15 +14,17 @@ export const totalMonths = (startDate, endDate) => {
     return (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
   }
 };
-export const generateMonthsArray = (startDate, endDate) => {
+export const generateMonthsArray = (startDate = "", endDate = "") => {
+  const formattedStart = new Date(startDate);
+  const formattedEnd = new Date(endDate);
   const months = [];
-  let currentMonth = startDate.getMonth() + 1;
-  let currentYear = startDate.getFullYear();
+  let currentMonth = formattedStart.getMonth() + 1;
+  let currentYear = formattedStart.getFullYear();
 
   while (
-    currentYear <= endDate.getFullYear() ||
-    (currentYear === endDate.getFullYear() &&
-      currentMonth <= endDate.getMonth())
+    currentYear <= formattedEnd.getFullYear() ||
+    (currentYear === formattedEnd.getFullYear() &&
+      currentMonth <= formattedEnd.getMonth())
   ) {
     // Incrementa currentMonth en 1 para mostrar el número de mes correcto
     const formattedMonth = currentMonth.toString().padStart(2, "0");

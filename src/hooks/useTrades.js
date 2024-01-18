@@ -1,63 +1,111 @@
 import { useState } from "react";
 import { totalMonths } from "../utils/date";
 import axios from "axios";
+import { calculateEarnings } from "../utils/investmentUtils";
+import { useDispatch, useSelector } from "react-redux";
+import { onUpdateSettings, onUpdateStatus } from "../store/tradeSlice";
+import { onUpdatePortfolio } from "../store/portfolioSlice";
 
 /**
  * Custom hook para realizar solicitudes a la api de buda
  */
 export const useTrades = () => {
-  const [trades, setTrades] = useState([]);
+  const [coins, setCoins] = useState([]);
+  const [currencies, setCurrencies] = useState([]);
+  const trade = useSelector((state) => state.trade);
+  const portfolio = useSelector((state) => state.portfolio);
+  const dispatch = useDispatch();
+
   const baseURL = process.env.REACT_APP_API_URL;
+
+  const uniqueDataForCurrencies = (data = "", isCoin = true) => {
+    let currencies = [];
+    let uniqueCoins = [];
+    currencies = isCoin
+      ? data.markets.map((market) => market.base_currency)
+      : data.markets.map((market) => market.quote_currency);
+
+    currencies.forEach((item) => {
+      if (!uniqueCoins.includes(item)) {
+        uniqueCoins.push(item);
+      }
+    });
+    return uniqueCoins;
+  };
+  const getMarkets = async () => {
+    await axios
+      .get(`${baseURL}/markets`)
+      .then(({ data }) => {
+        const uniqueCoins = uniqueDataForCurrencies(data, true);
+        setCoins(uniqueCoins);
+        const uniqueCurrencies = uniqueDataForCurrencies(data, false);
+        setCurrencies(uniqueCurrencies);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   /**
    * Función cuyo objetivo es entregar el listado de transacciones más recientes
    * del mercado indicado
-   * @param {*} marketId: id del mercado indicado
-   * @param {*} startDate fecha inicial del rango
-   * @param {*} endDate fecha final del rango
+   * @param {*} settings: objeto que contiene los datos ingresados por el usuario
    */
-  const getTrades = async (
-    marketId = "BTC-CLP",
-    startDate = new Date(),
-    endDate
-  ) => {
-    /**
-     * Resetea los trades en caso de nueva consulta, asi se
-     * actualiza el sitio para renderizar los cambios.
-     */
-    setTrades([]);
-    let months = 0;
+  const getTrades = async (settings = {}) => {
+    dispatch(onUpdateStatus("loading"));
 
-    startDate.setUTCHours(12, 0, 0, 0);
-    months = totalMonths(startDate, endDate);
-    for (let i = 0; i <= months; i++) {
-      /**
-       * Establece la fecha al primer día del mes actual "i",
-       * de esta forma va obteniendo el primer dia de cada mes
-       * segun el rango de tiempo que se haya solicitado.
-       */
+    const { selectedCoin, selectedCurrency, startDate, endDate } = settings;
+    const marketId = `${selectedCoin}-${selectedCurrency}`;
+
+    let tradesTemporal = [];
+    let monthsRange = totalMonths(startDate, endDate);
+
+    const fetchTradeData = async (timestamp, index) => {
+      try {
+        const params = { timestamp, limit: 1 };
+        const { data } = await axios.get(
+          `${baseURL}/markets/${marketId}/trades`,
+          { params }
+        );
+        return { index, trades: data.trades };
+      } catch (err) {
+        console.error(err);
+        return { index, trades: [] };
+      }
+    };
+
+    const promises = Array.from({ length: monthsRange + 1 }, (_, i) => {
       const firstDayOfMonth = new Date(
         startDate.getFullYear(),
-        startDate.getMonth() + i,
+        endDate.getMonth() + i,
         1,
         12,
         0,
         0,
         0
-      );
-      await axios
-        .get(`${baseURL}/markets/${marketId}/trades`, {
-          params: {
-            timestamp: firstDayOfMonth.getTime(),
-            limit: 1,
-          },
-        })
-        .then(({ data }) => {
-          setTrades((old) => [...old, data.trades]);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
+      ).getTime();
+      return fetchTradeData(firstDayOfMonth, i);
+    });
+
+    const resolvedPromises = await Promise.all(promises);
+
+    resolvedPromises.sort((a, b) => a.index - b.index);
+
+    tradesTemporal = resolvedPromises.map((result) => result.trades);
+
+    const { amount, months } = settings;
+    const info = calculateEarnings(tradesTemporal, amount, months);
+
+    dispatch(onUpdatePortfolio(info));
+    dispatch(onUpdateSettings(settings));
+    dispatch(onUpdateStatus("completed"));
   };
-  return { getTrades, trades };
+
+  return {
+    getTrades,
+    trade,
+    getMarkets,
+    coins,
+    currencies,
+    portfolio,
+  };
 };

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -14,6 +13,7 @@ import {
 } from "chart.js";
 import { generateMonthsArray } from "../utils/date";
 import { monthInvestment } from "../utils/investmentUtils";
+import { useTrades } from "../hooks/useTrades";
 
 ChartJS.register(
   CategoryScale,
@@ -26,10 +26,11 @@ ChartJS.register(
   Filler
 );
 
-export const DCAChart = ({ data = [], settings }) => {
+export const DCAChart = () => {
   const [dates, setDates] = useState([]);
   const [portfolioValues, setPortfolioValues] = useState([]);
   const [investmentData, setInvestmentData] = useState();
+  const { trade, portfolio } = useTrades();
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: [
@@ -80,36 +81,36 @@ export const DCAChart = ({ data = [], settings }) => {
   };
 
   const getDates = () => {
-    const { startDate, endDate } = settings;
+    const { startDate, endDate } = trade;
     const datesArray = generateMonthsArray(startDate, endDate);
 
     setDates(datesArray);
   };
 
   const getPortfolioValues = () => {
-    const portfolio = data.map((d, index) => ({
+    const p = portfolio.values.map((d, index) => ({
       x: index,
       y: d.portfolioValue,
     }));
-    setPortfolioValues(portfolio);
+    setPortfolioValues(p);
   };
 
   const getInvestmentValues = () => {
-    const amountInvested = settings.amount;
-    const investment = data.map((d, index) => ({
+    const { amount } = trade;
+    const investment = portfolio.values.map((d, index) => ({
       x: index,
-      y: monthInvestment(amountInvested, index),
+      y: monthInvestment(amount, index),
     }));
     setInvestmentData(investment);
   };
 
   useEffect(() => {
-    if (data.length > 0) {
+    if (portfolio.values.length > 0) {
       getDates();
       getPortfolioValues();
       getInvestmentValues();
     }
-  }, [data]);
+  }, [portfolio.values]);
 
   useEffect(() => {
     setChartData((prevData) => ({
@@ -135,15 +136,4 @@ export const DCAChart = ({ data = [], settings }) => {
       </div>
     </>
   );
-};
-DCAChart.propTypes = {
-  data: PropTypes.array,
-  settings: PropTypes.shape({
-    amount: PropTypes.number,
-    selectedCoin: PropTypes.string,
-    startDate: PropTypes.instanceOf(Date),
-    endDate: PropTypes.instanceOf(Date),
-    selectedCurrency: PropTypes.string,
-    months: PropTypes.number,
-  }),
 };
